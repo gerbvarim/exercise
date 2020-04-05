@@ -1,6 +1,7 @@
 import os
 from flask import Flask, flash, request, redirect, url_for, send_file, session
 #from werkzeug.utils import secure_filename
+from data_base_wrapper import *
 
 UPLOAD_FOLDER = 'upload_folder/'
 USER_MAX_ALLOWED_EXC = {}
@@ -110,7 +111,8 @@ def main_menu():
 def login():
     if request.method == 'POST':
         session['username'] = request.form['username']
-        if not(session['username'] in  USER_MAX_ALLOWED_EXC):
+        #if not(session['username'] in  USER_MAX_ALLOWED_EXC):
+        if not(USER_MAX_ALLOWED_EXC.key_in_db(session['username'])):
             USER_MAX_ALLOWED_EXC[session['username']] = 1
         return redirect(url_for('main_menu'))
 
@@ -165,5 +167,7 @@ def exc2():
 if __name__=="__main__":
     app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'
+    USER_MAX_ALLOWED_EXC = DataBaseWrapper("gerber_exc.db", "name_max_exc", int)
+    
     
     app.run("127.0.0.1", 12345)
