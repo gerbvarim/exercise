@@ -2,10 +2,12 @@ import os
 from flask import Flask, flash, request, redirect, url_for, send_file, session
 #from werkzeug.utils import secure_filename
 from data_base_wrapper import *
+from jinja2 import Template
 
 UPLOAD_FOLDER = 'upload_folder/'
 USER_MAX_ALLOWED_EXC = {}
 CURRENT_EXC = {}
+EXC_FILE = ""
 
 app = Flask(__name__)
 
@@ -46,32 +48,9 @@ def exc_page_gen(has_attached_files = True):
     create the html corresponding to an exceresise get command.
     basiccaly describ what the user will see.
     """
-    page_html = "<title>excresise"+str(CURRENT_EXC[session['username']])+"</title>\n"
-    page_html += "<h1>excresise "+str(CURRENT_EXC[session['username']])+"</h1>\n"
-    page_html += '''
-    <form method=get enctype=multipart/form-data>
-          <a href="/download_inst">download instructions</a>
-        </form>
-    '''
-    if has_attached_files:
-        page_html += '''
-        <form method=get enctype=multipart/form-data>
-          <a href="/download_files">download files</a>
-        </form>
-        '''
-    page_html += '''
-        <form method=post enctype=multipart/form-data>
-          <label for="file">your solution: </label>
-          <input type=file name=file>
-          <input type=submit value=Upload>
-    </form>
-    '''
-    page_html += '''
-        <form method=get enctype=multipart/form-data>
-          <a href="/main_menu">back to main menu</a>
-        </form>
-        '''
-    return page_html
+    tm = Template(EXC_FILE)
+    return tm.render(id = str(CURRENT_EXC[session['username']]), down_inst_url=url_for("download_instruction"),  
+        down_file_url=url_for("download_files"),main_menu_url=url_for("main_menu"), has_attached_files = has_attached_files)
         
 def exc_logic(request, id, test_func, has_files_to_download = 'True'):
     global CURRENT_EXC
@@ -169,5 +148,6 @@ if __name__=="__main__":
     app.config['SESSION_TYPE'] = 'filesystem'
     USER_MAX_ALLOWED_EXC = DataBaseWrapper("gerber_exc.db", "name_max_exc", int)
     
+    EXC_FILE = open("templates/exc.html").read()
     
     app.run("127.0.0.1", 12345)
