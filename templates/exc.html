@@ -25,10 +25,13 @@
     <div class="card-body">
         <h5 class="card-title">downloadable content</h5>
         
-        <a href="{{down_inst_url}}" class="btn btn-primary">download instructions</a>
+        <form method=get enctype=multipart/form-data>
+          <a href="{{down_inst_url}}" class="btn btn-primary">download instructions</a>
         {% if has_attached_files %}
-        <b href="{{down_files_url}}" class="btn btn-primary">download files</b>
+          <a href="{{down_files_url}}" class="btn btn-primary">download files</a>
         {% endif %}
+        </form>
+        
     </div>
 </div>
 
@@ -36,17 +39,15 @@
     <div class="card-body" >
         <h5 class="card-title">submit your solution</h5>
         <form method="post" enctype=multipart/form-data>
-        <input type=file name=file>
-        <input type=submit value=submit class="btn btn-primary">
+            <input type=file name=file>
+            <input type=submit value=submit class="btn btn-primary">
         </form>
     </div>
 </div>
 
 <div class="card text-center">
     <div class="card-body">
-        <h5 class="card-title">downloadable content</h5>
-        
-        <a href="{{main_menu_url}}" class="btn btn-primary">main menu</a>
+        <a href="{{main_menu_url}}" class="btn btn-primary">back to main menu</a>
     </div>
 </div>
 

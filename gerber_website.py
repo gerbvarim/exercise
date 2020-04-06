@@ -50,7 +50,7 @@ def exc_page_gen(has_attached_files = True):
     """
     tm = Template(EXC_FILE)
     return tm.render(id = str(CURRENT_EXC[session['username']]), down_inst_url=url_for("download_instruction"),  
-        down_file_url=url_for("download_files"),main_menu_url=url_for("main_menu"), has_attached_files = has_attached_files)
+        down_files_url=url_for("download_files"),main_menu_url=url_for("main_menu"), has_attached_files = has_attached_files)
         
 def exc_logic(request, id, test_func, has_files_to_download = 'True'):
     global CURRENT_EXC
