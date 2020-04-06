@@ -5,9 +5,12 @@ from data_base_wrapper import *
 from jinja2 import Template
 
 UPLOAD_FOLDER = 'upload_folder/'
+NUM_ECXS = 4
 USER_MAX_ALLOWED_EXC = {}
 CURRENT_EXC = {}
-EXC_FILE = ""
+EXC_TEMP = ""
+TITLE_TEMP = ""
+BUTTON_LINK_TEMP = ""
 
 app = Flask(__name__)
 
@@ -48,25 +51,26 @@ def exc_page_gen(has_attached_files = True):
     create the html corresponding to an exceresise get command.
     basiccaly describ what the user will see.
     """
-    tm = Template(EXC_FILE)
+    tm = Template(EXC_TEMP)
     return tm.render(id = str(CURRENT_EXC[session['username']]), down_inst_url=url_for("download_instruction"),  
         down_files_url=url_for("download_files"),main_menu_url=url_for("main_menu"), has_attached_files = has_attached_files)
 
 @app.route('/main_menu', methods=['GET'])        
 def main_menu():
-    return '''
-        <!doctype html>
-        <title>gerber file excresises main menu</title>
-        <h1>gerber file excresises main menu</h1>
+    tm = Template(TITLE_TEMP)
+    html_data = tm.render(title="gerber file excresises main menu", color = "black")
+    max_allowed_exc = USER_MAX_ALLOWED_EXC[session['username']]
+    for ind in range(1, max_allowed_exc + 1): #begin from 1 to match 1-base exc numbering
+        tm = Template(BUTTON_LINK_TEMP)
+        html_data += tm.render(url="/exc/<"+str(ind)+">", class_b="primary", disabled = "", text = "excresise "+str(ind))
         
-        <form method=get enctype=multipart/form-data>
-          <a href="/exc/<1>">excresise 1 </a>
-        </form>
-        <form method=get enctype=multipart/form-data>
-          <a href="/exc/<2>">excresise 2 </a>
-        </form>
-        
-        '''
+    #add disabled button for next excersise
+    if max_allowed_exc <= NUM_ECXS:
+        tm = Template(BUTTON_LINK_TEMP)
+        html_data += tm.render(url=request.url, class_b="secondary ", disabled = "disabled", text = "excresise "+str(max_allowed_exc+1))
+    return html_data
+
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -158,6 +162,8 @@ if __name__=="__main__":
     app.config['SESSION_TYPE'] = 'filesystem'
     USER_MAX_ALLOWED_EXC = DataBaseWrapper("gerber_exc.db", "name_max_exc", int)
     
-    EXC_FILE = open("templates/exc.html").read()
+    EXC_TEMP = open("templates/exc.html", "r").read()
+    TITLE_TEMP = open("templates/title.html", "r").read()
+    BUTTON_LINK_TEMP = open("templates/button_link.html", "r").read()
     
     app.run("127.0.0.1", 12345)
