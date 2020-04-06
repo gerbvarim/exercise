@@ -32,19 +32,16 @@ def upload_file(request, file_name = "sol1.txt"):
     file.save(UPLOAD_FOLDER + file_name)
     return None
 
-def message_page_gen(msg, return_url, return_button_name):
-        """
-        generate a page with a single message.
-        should be usefull for both errors, success messages.
-        """
-        msg_html = """
-        <!doctype html>
-        <title>"""
-        msg_html += msg + "</title>\n"
-        msg_html += "<h1>" + msg + "</h1>\n"
-        msg_html += "<form method=get enctype=multipart/form-data>\n"
-        msg_html += "   <a href=\"" + return_url +  "\">" + return_button_name + "</a>\n"
-        return msg_html + "</form>\n"
+def message_page_gen(msg, return_url, return_button_name, color = 'black'):
+    """
+    generate a page with a single message.
+    should be usefull for both errors, success messages.
+    """
+    tm = Template(TITLE_TEMP)
+    html_data = tm.render(title=msg, color = color)
+    tm = Template(BUTTON_LINK_TEMP)
+    html_data += tm.render(url=return_url, class_b="primary ", disabled = "", text = return_button_name)
+    return html_data
 
 def exc_page_gen(has_attached_files = True):
     """
@@ -142,13 +139,13 @@ def exc(id):
     if request.method == 'POST':
         upload_file_ret_val = upload_file(request, "sol_"+session['username']+".txt")
         if upload_file_ret_val != None:
-            return message_page_gen(upload_file_ret_val, request.url, "retry_submission")
+            return message_page_gen(upload_file_ret_val, request.url, "retry_submission", "red")
         if test_func():#if passed test
             global USER_MAX_ALLOWED_EXC
             USER_MAX_ALLOWED_EXC[session['username']] = max(USER_MAX_ALLOWED_EXC[session['username']], id + 1)
-            return message_page_gen("submission correct", url_for("main_menu"), "main_menu")
+            return message_page_gen("submission correct", url_for("main_menu"), "main_menu", "LimeGreen")
         else:
-            return message_page_gen("submission incorrect", request.url, "retry_submission ")
+            return message_page_gen("submission incorrect", request.url, "retry_submission ", "red")
 
     if USER_MAX_ALLOWED_EXC[session['username']] >= id:
         CURRENT_EXC[session['username']] = id
