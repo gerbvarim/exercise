@@ -51,25 +51,6 @@ def exc_page_gen(has_attached_files = True):
     tm = Template(EXC_FILE)
     return tm.render(id = str(CURRENT_EXC[session['username']]), down_inst_url=url_for("download_instruction"),  
         down_files_url=url_for("download_files"),main_menu_url=url_for("main_menu"), has_attached_files = has_attached_files)
-        
-def exc_logic(request, id, test_func, has_files_to_download = 'True'):
-    global CURRENT_EXC
-    if request.method == 'POST':
-        upload_file_ret_val = upload_file(request, "sol_"+session['username']+".txt")
-        if upload_file_ret_val != None:
-            return message_page_gen(upload_file_ret_val, request.url, "retry_submission")
-        if test_func():#if passed exc1
-            global USER_MAX_ALLOWED_EXC
-            USER_MAX_ALLOWED_EXC[session['username']] = max(USER_MAX_ALLOWED_EXC[session['username']], id + 1)
-            return message_page_gen("submission correct", url_for("main_menu"), "main_menu")
-        else:
-            return message_page_gen("submission incorrect", request.url, "retry_submission ")
-
-    if USER_MAX_ALLOWED_EXC[session['username']] >= id:
-        CURRENT_EXC[session['username']] = id
-        return exc_page_gen(has_files_to_download)
-    else:
-        return message_page_gen(" you have not completed the requirments for excresise"+ str(id), url_for("main_menu"), "back to main menu")
 
 @app.route('/main_menu', methods=['GET'])        
 def main_menu():
@@ -79,10 +60,10 @@ def main_menu():
         <h1>gerber file excresises main menu</h1>
         
         <form method=get enctype=multipart/form-data>
-          <a href="/exc1">excresise 1 </a>
+          <a href="/exc/<1>">excresise 1 </a>
         </form>
         <form method=get enctype=multipart/form-data>
-          <a href="/exc2">excresise 2 </a>
+          <a href="/exc/<2>">excresise 2 </a>
         </form>
         
         '''
@@ -124,23 +105,52 @@ def download_files():
         
 #########exc1 specific code#########################       
 def passed_exc1():
-    return True #TODO: implement test logic later
-        
-@app.route('/exc1', methods=['GET', 'POST'])
-def exc1():
-    return exc_logic(request, 1, passed_exc1)
-    
+    return True #TODO: implement test logic later   
 
 #########exc2 specific code#########################       
 def passed_exc2():
     return False #TODO: implement test logic later
         
-@app.route('/exc2', methods=['GET', 'POST'])
-def exc2():
-    return exc_logic(request, 2, passed_exc2)
+#########exc3 specific code#########################       
+def passed_exc3():
+    return False #TODO: implement test logic later
+           
+#########exc4 specific code#########################       
+def passed_exc4():
+    return False #TODO: implement test logic later
 
-        
+test_func_list = [passed_exc1, passed_exc2, passed_exc3, passed_exc4]
+has_files_to_download_list = [True, True, False, False]    
+    
 
+@app.route('/exc/<id>', methods=['GET', 'POST'])    
+def exc(id):
+    """
+    function responsible for card of excersise.
+    all excersise are basically with the same layout and gui.
+    """
+    global CURRENT_EXC
+    
+    id = int(id[1:-1])#convert to string and remove '<' chars.
+    test_func = test_func_list[id - 1]
+    has_files_to_download = has_files_to_download_list[id - 1]
+    
+    if request.method == 'POST':
+        upload_file_ret_val = upload_file(request, "sol_"+session['username']+".txt")
+        if upload_file_ret_val != None:
+            return message_page_gen(upload_file_ret_val, request.url, "retry_submission")
+        if test_func():#if passed test
+            global USER_MAX_ALLOWED_EXC
+            USER_MAX_ALLOWED_EXC[session['username']] = max(USER_MAX_ALLOWED_EXC[session['username']], id + 1)
+            return message_page_gen("submission correct", url_for("main_menu"), "main_menu")
+        else:
+            return message_page_gen("submission incorrect", request.url, "retry_submission ")
+
+    if USER_MAX_ALLOWED_EXC[session['username']] >= id:
+        CURRENT_EXC[session['username']] = id
+        return exc_page_gen(has_files_to_download)
+    else:
+        return message_page_gen(" you have not completed the requirments for excresise"+ str(id), url_for("main_menu"), "back to main menu")
 
 
 if __name__=="__main__":

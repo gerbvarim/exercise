@@ -30,19 +30,3 @@ class DataBaseWrapper(object):
     
     def key_in_db(self, key):
         return self[key] != None
-            
-if __name__=="__main__":
-    db1 = DataBaseWrapper("test.db","test",str)
-    db2 = DataBaseWrapper("test.db","test",str)
-    
-    #some code example:
-    #import sqlite3
-    #conn = sqlite3.connect('example.db')
-    #c.execute('CREATE TABLE test (name, max_tar)')
-    #c.execute('''INSERT into test VALUES ('zivlan', '5')''')
-    #c.execute('''DELETE FROM test WHERE name='zivlan' ''')
-    #conn.commit()
-    
-    #c.execute('''SELECT * FROM test WHERE name='zivlan' ''')
-    #c.fetchone()
-    #c.fetchall()
