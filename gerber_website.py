@@ -7,10 +7,12 @@ from jinja2 import Template
 UPLOAD_FOLDER = 'upload_folder/'
 NUM_ECXS = 4
 USER_MAX_ALLOWED_EXC = {}
+USER_PWDS = {}
 CURRENT_EXC = {}
 EXC_TEMP = ""
 TITLE_TEMP = ""
 BUTTON_LINK_TEMP = ""
+LOG_REG_TEMP = ""
 
 app = Flask(__name__)
 
@@ -67,27 +69,53 @@ def main_menu():
         html_data += tm.render(url=request.url, class_b="secondary ", disabled = "disabled", text = "excresise "+str(max_allowed_exc+1))
     return html_data
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    global USER_PWDS
+    global USER_MAX_ALLOWED_EXC
+    if request.method == 'POST':
+        session['username'] = request.form['username']
+        session['password'] = request.form['password']
+        if USER_PWDS.key_in_db(session['username']):
+            html_data =  message_page_gen("username already exists, please try other name or login with current name", request.url, "retry_registreation")
+            tm = Template(BUTTON_LINK_TEMP)
+            html_data += tm.render(url=url_for("login"), class_b="primary ", disabled = "", text = "login")
+            return html_data
+            
+        USER_PWDS[session['username']] = session['password']
+        USER_MAX_ALLOWED_EXC[session['username']] = 1
+        return redirect(url_for('main_menu'))
+    
+    tm = Template(LOG_REG_TEMP)
+    return tm.render(log_reg="register")
+    
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         session['username'] = request.form['username']
-        #if not(session['username'] in  USER_MAX_ALLOWED_EXC):
-        if not(USER_MAX_ALLOWED_EXC.key_in_db(session['username'])):
-            USER_MAX_ALLOWED_EXC[session['username']] = 1
+        session['password'] = request.form['password']
+        if not(USER_PWDS.key_in_db(session['username'])):
+            html_data =  message_page_gen("username doesnt exists, please try other name or register with current name", request.url, "retry_login")
+            tm = Template(BUTTON_LINK_TEMP)
+            html_data += tm.render(url=url_for("register"), class_b="primary ", disabled = "", text = "register")
+            return html_data
+        if session['password'] != USER_PWDS[session['username']]:
+            return message_page_gen("incorrect password, please try again", request.url, "retry_login")
         return redirect(url_for('main_menu'))
-
-    return '''
-    <!doctype html>
-    <title>gerber file excresises login</title>
-    <h1>gerber file excresises login</h1>
     
-    <form method="post">
-        <label for="username">your full name:</label>
-        <input type="username" name="username" id="username" required>
-        <input type="submit" value="Register">
-    </form>
-    '''
+    tm = Template(LOG_REG_TEMP)
+    return tm.render(log_reg="login")
+
+@app.route('/', methods=['GET'])
+def enter_screen():
+    tm = Template(TITLE_TEMP)
+    html_data = tm.render(title="welcome to gerber excersise")
+    tm = Template(BUTTON_LINK_TEMP)
+    html_data += tm.render(url=url_for("register"), class_b="primary ", disabled = "", text = "register")
+    tm = Template(BUTTON_LINK_TEMP)
+    html_data += tm.render(url=url_for("login"), class_b="primary ", disabled = "", text = "login")
+    return html_data
         
         
 @app.route("/download_inst")
@@ -158,9 +186,11 @@ if __name__=="__main__":
     app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'
     USER_MAX_ALLOWED_EXC = DataBaseWrapper("gerber_exc.db", "name_max_exc", int)
+    USER_PWDS = DataBaseWrapper("pwd.db", "pwds", str)
     
     EXC_TEMP = open("templates/exc.html", "r").read()
     TITLE_TEMP = open("templates/title.html", "r").read()
     BUTTON_LINK_TEMP = open("templates/button_link.html", "r").read()
+    LOG_REG_TEMP = open("templates/log_reg.html", "r").read()
     
     app.run("127.0.0.1", 12345)
