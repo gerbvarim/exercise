@@ -4,6 +4,9 @@ from flask import Flask, flash, request, redirect, url_for, send_file, session
 from data_base_wrapper import *
 from jinja2 import Template
 import threading
+import sys
+sys.path.append("./exc_checking")
+from exc_check import *
 
 UPLOAD_FOLDER = 'upload_folder/'
 NUM_ECXS = 4
@@ -129,29 +132,14 @@ def download_instruction():
     downlaod the relevant instruction file
     """
     return send_file("tar_doc/exc" + str(CURRENT_EXC[session['username']])+ ".docx", as_attachment=True)
-   
+ 
+exc_file_extention = [".txt", ".zip", None, None] 
 @app.route("/download_files")
 def download_files():
     """
     download the relevant user file, if exists.
     """
-    return send_file("user_files/exc" + str(CURRENT_EXC[session['username']]) + ".zip", as_attachment=True)
-        
-#########exc1 specific code#########################       
-def passed_exc1():
-    return True #TODO: implement test logic later   
-
-#########exc2 specific code#########################       
-def passed_exc2():
-    return False #TODO: implement test logic later
-        
-#########exc3 specific code#########################       
-def passed_exc3():
-    return False #TODO: implement test logic later
-           
-#########exc4 specific code#########################       
-def passed_exc4():
-    return False #TODO: implement test logic later
+    return send_file("user_files/exc" + str(CURRENT_EXC[session['username']]) + exc_file_extention[CURRENT_EXC[session['username']] - 1], as_attachment=True)
 
 test_func_list = [passed_exc1, passed_exc2, passed_exc3, passed_exc4]
 has_files_to_download_list = [True, True, False, False]    
