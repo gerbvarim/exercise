@@ -46,7 +46,7 @@ def message_page_gen(msg, return_url, return_button_name, color = 'black'):
     tm = Template(TITLE_TEMP)
     html_data = tm.render(title=msg, color = color)
     tm = Template(BUTTON_LINK_TEMP)
-    html_data += tm.render(url=return_url, class_b="primary ", disabled = "", text = return_button_name)
+    html_data += tm.render(url=return_url, class_b="primary ", text = return_button_name)
     return html_data
 
 def exc_page_gen(has_attached_files = True):
@@ -65,12 +65,12 @@ def main_menu():
     max_allowed_exc = USER_MAX_ALLOWED_EXC[session['username']]
     for ind in range(1, max_allowed_exc + 1): #begin from 1 to match 1-base exc numbering
         tm = Template(BUTTON_LINK_TEMP)
-        html_data += tm.render(url="/exc/<"+str(ind)+">", class_b="primary", disabled = "", text = "excresise "+str(ind))
+        html_data += tm.render(url="/exc/<"+str(ind)+">", class_b="primary", text = "excresise "+str(ind))
         
     #add disabled button for next excersise
     if max_allowed_exc <= NUM_ECXS:
         tm = Template(BUTTON_LINK_TEMP)
-        html_data += tm.render(url=request.url, class_b="secondary ", disabled = "disabled", text = "excresise "+str(max_allowed_exc+1))
+        html_data += tm.render(url=request.url, class_b="disabled ", text = "excresise "+str(max_allowed_exc+1))
     return html_data
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -84,7 +84,7 @@ def register():
             if USER_PWDS.key_in_db(session['username']):
                 html_data =  message_page_gen("username already exists, please try other name or login with current name", request.url, "retry_registreation")
                 tm = Template(BUTTON_LINK_TEMP)
-                html_data += tm.render(url=url_for("login"), class_b="primary ", disabled = "", text = "login")
+                html_data += tm.render(url=url_for("login"), class_b="primary ", text = "login")
                 return html_data
                 
             USER_PWDS[session['username']] = session['password']
@@ -103,7 +103,7 @@ def login():
         if not(USER_PWDS.key_in_db(session['username'])):
             html_data =  message_page_gen("username doesnt exists, please try other name or register with current name", request.url, "retry_login")
             tm = Template(BUTTON_LINK_TEMP)
-            html_data += tm.render(url=url_for("register"), class_b="primary ", disabled = "", text = "register")
+            html_data += tm.render(url=url_for("register"), class_b="primary ", text = "register")
             return html_data
         if session['password'] != USER_PWDS[session['username']]:
             return message_page_gen("incorrect password, please try again", request.url, "retry_login")
@@ -117,9 +117,9 @@ def enter_screen():
     tm = Template(TITLE_TEMP)
     html_data = tm.render(title="welcome to gerber excersise")
     tm = Template(BUTTON_LINK_TEMP)
-    html_data += tm.render(url=url_for("register"), class_b="primary ", disabled = "", text = "register")
+    html_data += tm.render(url=url_for("register"), class_b="primary ", text = "register")
     tm = Template(BUTTON_LINK_TEMP)
-    html_data += tm.render(url=url_for("login"), class_b="primary ", disabled = "", text = "login")
+    html_data += tm.render(url=url_for("login"), class_b="primary ", text = "login")
     return html_data
         
         
