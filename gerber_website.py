@@ -3,6 +3,7 @@ from flask import Flask, flash, request, redirect, url_for, send_file, session
 #from werkzeug.utils import secure_filename
 from data_base_wrapper import *
 from jinja2 import Template
+import threading
 
 UPLOAD_FOLDER = 'upload_folder/'
 NUM_ECXS = 4
@@ -13,6 +14,9 @@ EXC_TEMP = ""
 TITLE_TEMP = ""
 BUTTON_LINK_TEMP = ""
 LOG_REG_TEMP = ""
+
+REGISTER_LOCK = None
+
 
 app = Flask(__name__)
 
@@ -76,14 +80,15 @@ def register():
     if request.method == 'POST':
         session['username'] = request.form['username']
         session['password'] = request.form['password']
-        if USER_PWDS.key_in_db(session['username']):
-            html_data =  message_page_gen("username already exists, please try other name or login with current name", request.url, "retry_registreation")
-            tm = Template(BUTTON_LINK_TEMP)
-            html_data += tm.render(url=url_for("login"), class_b="primary ", disabled = "", text = "login")
-            return html_data
-            
-        USER_PWDS[session['username']] = session['password']
-        USER_MAX_ALLOWED_EXC[session['username']] = 1
+        with REGISTER_LOCK:#section of registreation is the only possible section when 2 user can collide
+            if USER_PWDS.key_in_db(session['username']):
+                html_data =  message_page_gen("username already exists, please try other name or login with current name", request.url, "retry_registreation")
+                tm = Template(BUTTON_LINK_TEMP)
+                html_data += tm.render(url=url_for("login"), class_b="primary ", disabled = "", text = "login")
+                return html_data
+                
+            USER_PWDS[session['username']] = session['password']
+            USER_MAX_ALLOWED_EXC[session['username']] = 1
         return redirect(url_for('main_menu'))
     
     tm = Template(LOG_REG_TEMP)
@@ -192,5 +197,7 @@ if __name__=="__main__":
     TITLE_TEMP = open("templates/title.html", "r").read()
     BUTTON_LINK_TEMP = open("templates/button_link.html", "r").read()
     LOG_REG_TEMP = open("templates/log_reg.html", "r").read()
+    
+    REGISTER_LOCK = threading.Lock()
     
     app.run("127.0.0.1", 12345)
