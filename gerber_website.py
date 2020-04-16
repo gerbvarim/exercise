@@ -65,7 +65,7 @@ def exc_page_gen(has_attached_files = True):
 def main_menu():
     tm = Template(TITLE_TEMP)
     html_data = tm.render(title="gerber file excresises main menu", color = "black")
-    max_allowed_exc = USER_MAX_ALLOWED_EXC[session['username']]
+    max_allowed_exc = min(NUM_ECXS, USER_MAX_ALLOWED_EXC[session['username']])
     for ind in range(1, max_allowed_exc + 1): #begin from 1 to match 1-base exc numbering
         tm = Template(BUTTON_LINK_TEMP)
         html_data += tm.render(url="/exc/<"+str(ind)+">", class_b="primary", text = "excresise "+str(ind))
