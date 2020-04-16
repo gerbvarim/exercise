@@ -71,7 +71,7 @@ def main_menu():
         html_data += tm.render(url="/exc/<"+str(ind)+">", class_b="primary", text = "excresise "+str(ind))
         
     #add disabled button for next excersise
-    if max_allowed_exc <= NUM_ECXS:
+    if max_allowed_exc < NUM_ECXS:
         tm = Template(BUTTON_LINK_TEMP)
         html_data += tm.render(url=request.url, class_b="disabled ", text = "excresise "+str(max_allowed_exc+1))
     return html_data

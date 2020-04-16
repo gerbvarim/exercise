@@ -45,7 +45,15 @@ def passed_exc2():
         
 #########exc3 specific code#########################       
 def passed_exc3():
-    return False #TODO: implement test logic later
+    try:
+        correct_res = open("exc_checking/sol3.txt","r").read().split()
+        user_res = open("upload_folder/sol_" + session['username'] + ".txt", "r").read().split()
+        for ind in range(len(correct_res)):
+            if correct_res[ind] != user_res[ind]:
+                return False
+        return True
+    except Exception:
+        return False
            
 #########exc4 specific code#########################       
 def passed_exc4():
