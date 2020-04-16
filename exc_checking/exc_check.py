@@ -4,13 +4,51 @@ sys.path.append("./exc_checking")
 from gerber_file import *
 from flask import session
         
-#########exc1 specific code#########################       
+#########exc1 specific code######################### 
+def does_circles_overlap(center1, center2, r1, r2):
+    return point_diff_by2(center1, center2) < r1**2 + r2**2
+
+def does_squares_overlap(center1, center2, l1, l2):
+    #l1, l2 is the side length of a square
+    if abs(center1[0] - center2[0]) > (l1 + l2) / 2:
+        return False
+    if abs(center1[1] - center2[1]) > (l1 + l2) / 2:
+        return False
+    return True
+
+def does_square_circle_overlap(center1, center2, l1, r2):
+    """
+    solution would be based on the bounding circle of the square, and on the bounding square of the circle.
+    we will check if the real square overlaps with the bounding square, 
+    and than we will check if the bounding square overlaps with the real square.
+    
+    because the bounding shapes are larger than the actual shapes, 
+    it is obvious that if the actual shapes will overlap the bounding circle will overlap with the real circle, 
+    and the bounding rectangle will overlap with the real rectangle.
+    
+    apperentely the only case where the real circle and the bounded circle could falsely overlap,
+    is the case where the distance on x_axis or y_axis is larger than r2+l1/2.
+    this case would never overlap between the real square and the bounding square,
+    so it should be safe to say that if both the real circle and bounding circle overlaps and the real square and the bounding square overlaps,
+    than the real square and the actual square overlaps.
+    """
+    if not(does_circles_overlap(center1, center2, l1 * 2**0.5, r2)):
+        #check if bounding circle overlaps real circle
+        return False
+    if not(does_squares_overlap(center1, center2, l1, 2*r2) ):
+        #check if bounding square overlaps real square
+        return False
+    return True
+    
+    
 def passed_exc1():
     try:
         gerber_file = GerberFile("upload_folder/sol_"+session['username']+".txt")
         resulted_aps = gerber_file.process_aps_with_connection()
         if not(len(resulted_aps) == 5):#check 5 shapes, as instructed
             return False
+        square_l = 0.3 * 10**5 #side length of squares
+        circle_r = (0.3 * 10**5) / 2 #radius of circles
         for ap in resulted_aps:
             if not( ap.type == 11 or ap.type == 12):
                 return False
@@ -26,6 +64,23 @@ def passed_exc1():
                 for ap_connected in ap.ap_connected_to:
                     if not( ap_connected.type == 12): #check squares are only connected to squares
                         return False
+            #check shape overlapping
+            for ap2 in resulted_aps:
+                if ap2 != ap:
+                    if ap.type == 11: #if ap circle
+                        if ap2.type == 11:
+                            if does_circles_overlap(ap.location, ap2.location, circle_r, circle_r):
+                                return False
+                        else:
+                            if does_square_circle_overlap(ap2.location, ap.location, square_l, circle_r):
+                                return False               
+                    else: #if ap square
+                        if ap2.type == 11:
+                            if does_square_circle_overlap(ap.location, ap2.location, square_l, circle_r):
+                                return False
+                        else:
+                            if does_squares_overlap(ap2.location, ap.location, square_l, square_l):
+                                return False               
         return True   
     except Exception:
         return False
