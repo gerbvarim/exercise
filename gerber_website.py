@@ -58,8 +58,8 @@ def exc_page_gen(has_attached_files = True):
     basiccaly describ what the user will see.
     """
     tm = Template(EXC_TEMP)
-    return tm.render(id = str(CURRENT_EXC[session['username']]), down_inst_url=url_for("download_instruction"),  
-        down_files_url=url_for("download_files"),main_menu_url=url_for("main_menu"), has_attached_files = has_attached_files)
+    return tm.render(id = str(CURRENT_EXC[session['username']]), down_inst_url="/download_inst/<"+str(CURRENT_EXC[session['username']])+">",  
+        down_files_url="/download_files/<"+str(CURRENT_EXC[session['username']])+">",main_menu_url=url_for("main_menu"), has_attached_files = has_attached_files)
 
 @app.route('/main_menu', methods=['GET'])        
 def main_menu():
@@ -126,20 +126,20 @@ def enter_screen():
     return html_data
         
         
-@app.route("/download_inst")
-def download_instruction():
+@app.route("/download_inst/<id>")
+def download_instruction(id):
     """
     downlaod the relevant instruction file
     """
-    return send_file("tar_doc/exc" + str(CURRENT_EXC[session['username']])+ ".docx", as_attachment=True)
+    return send_file("tar_doc/exc" + id[1:-1]+ ".docx", as_attachment=True)
  
 exc_file_extention = [".txt", ".zip", None, None] 
-@app.route("/download_files")
-def download_files():
+@app.route("/download_files/<id>")
+def download_files(id):
     """
     download the relevant user file, if exists.
     """
-    return send_file("user_files/exc" + str(CURRENT_EXC[session['username']]) + exc_file_extention[CURRENT_EXC[session['username']] - 1], as_attachment=True)
+    return send_file("user_files/exc" + id[1:-1] + exc_file_extention[CURRENT_EXC[session['username']] - 1], as_attachment=True)
 
 test_func_list = [passed_exc1, passed_exc2, passed_exc3, passed_exc4]
 has_files_to_download_list = [True, True, False, False]    
@@ -167,16 +167,16 @@ def exc(id):
             return message_page_gen("submission correct", url_for("main_menu"), "main_menu", "LimeGreen")
         else:
             return message_page_gen("submission incorrect", request.url, "retry_submission ", "red")
-
+            
     if USER_MAX_ALLOWED_EXC[session['username']] >= id:
         CURRENT_EXC[session['username']] = id
         return exc_page_gen(has_files_to_download)
     else:
         return message_page_gen(" you have not completed the requirments for excresise"+ str(id), url_for("main_menu"), "back to main menu")
 
-
+        
 if __name__=="__main__":
-    app.secret_key = 'super secret key'
+    app.secret_key = os.urandom(1024)
     app.config['SESSION_TYPE'] = 'filesystem'
     USER_MAX_ALLOWED_EXC = DataBaseWrapper("gerber_exc.db", "name_max_exc", int)
     USER_PWDS = DataBaseWrapper("pwd.db", "pwds", str)
@@ -188,4 +188,4 @@ if __name__=="__main__":
     
     REGISTER_LOCK = threading.Lock()
     
-    app.run("127.0.0.1", 12345)
+    app.run(host="127.0.0.1", port=12345, debug=False)
