@@ -186,4 +186,4 @@ if __name__=="__main__":
     
     REGISTER_LOCK = threading.Lock()
     
-    app.run(host="127.0.0.1", port=12345, debug=False)
+    app.run(host="0.0.0.0", port=12345, debug=False)
