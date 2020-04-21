@@ -44,44 +44,44 @@ def passed_exc1():
         gerber_file = GerberFile("upload_folder/sol_"+session['username']+".txt")
         resulted_aps = gerber_file.process_aps_with_connection()
         if not(len(resulted_aps) == 5):#check 5 shapes, as instructed
-            return False
+            return ""
         square_l = 0.3 * 10**5 #side length of squares
         circle_r = (0.3 * 10**5) / 2 #radius of circles
         for ap in resulted_aps:
             if not( ap.type == 11 or ap.type == 12):
-                return False
+                return ""
             if ap.type == 11:#ap is one of the 2 circles
                 if not( len(ap.ap_connected_to) == 2):
-                    return False
+                    return ""
                 for ap_connected in ap.ap_connected_to:
                     if not( ap_connected.type == 11): #check circles are only connected to circles
-                        return False
+                        return ""
             if ap.type == 12:#ap is one of the 3 squares
                 if not( len(ap.ap_connected_to) == 3):
-                    return False
+                    return ""
                 for ap_connected in ap.ap_connected_to:
                     if not( ap_connected.type == 12): #check squares are only connected to squares
-                        return False
+                        return ""
             #check shape overlapping
             for ap2 in resulted_aps:
                 if ap2 != ap:
                     if ap.type == 11: #if ap circle
                         if ap2.type == 11:
                             if does_circles_overlap(ap.location, ap2.location, circle_r, circle_r):
-                                return False
+                                return ""
                         else:
                             if does_square_circle_overlap(ap2.location, ap.location, square_l, circle_r):
-                                return False               
+                                return ""               
                     else: #if ap square
                         if ap2.type == 11:
                             if does_square_circle_overlap(ap.location, ap2.location, square_l, circle_r):
-                                return False
+                                return ""
                         else:
                             if does_squares_overlap(ap2.location, ap.location, square_l, square_l):
-                                return False               
-        return True   
+                                return ""               
+        return None   
     except Exception:
-        return False
+        return ""
     
 
 #########exc2 specific code#########################       
@@ -91,22 +91,22 @@ def passed_exc2():
         user_res = open("upload_folder/sol_" + session['username'] + ".txt", "r").read().split()
         for ind in range(len(correct_res)):
             if correct_res[ind] != user_res[ind]:
-                return False
-        return True
+                return ""
+        return None
     except Exception:
-        return False
+        return ""
         
 #########exc3 specific code#########################       
 def passed_exc3():
     try:
-        correct_res = open("exc_checking/sol3.txt","r").read().split()
-        user_res = open("upload_folder/sol_" + session['username'] + ".txt", "r").read().split()
+        correct_res = open("exc_checking/sol3.txt","r").read().split("\n")
+        user_res = open("upload_folder/sol_" + session['username'] + ".txt", "r").read().split("\n")
         for ind in range(len(correct_res)):
-            if correct_res[ind] != user_res[ind]:
-                return False
-        return True
+            if correct_res[ind].split() != user_res[ind].split():
+                return ": error in section" + str(ind + 1)
+        return None
     except Exception:
-        return False
+        return ""
            
 #########exc4 specific code######################### 
 def get_canonic_sol4_rep(sol4_lines):
@@ -129,11 +129,14 @@ def passed_exc4():
         correct_res = open("exc_checking/sol4.txt","r").read().split("\n")
         user_res = open("upload_folder/sol_" + session['username'] + ".txt", "r").read().split("\n")
         if correct_res[0].split()[0] != user_res[0].split()[0]:#check num nets is the correct one in a space-immune check
-            return False
+            return ": incorrect amount of nets"
         correct_res = correct_res[1::]#remove first line. it is already tested.
         user_res = user_res[1::]
-        return get_canonic_sol4_rep(correct_res) == get_canonic_sol4_rep(user_res)
+        if get_canonic_sol4_rep(correct_res) == get_canonic_sol4_rep(user_res):
+            return None
+        else:
+            return ": incorrect nets"
     except Exception:
-        return False
+        return ""
   
     

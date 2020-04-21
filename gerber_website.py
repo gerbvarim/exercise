@@ -66,12 +66,12 @@ def main_menu():
     max_allowed_exc = min(NUM_ECXS, USER_MAX_ALLOWED_EXC[session['username']])
     for ind in range(1, max_allowed_exc + 1): #begin from 1 to match 1-base exc numbering
         tm = Template(BUTTON_LINK_TEMP)
-        html_data += tm.render(url="/exc/<"+str(ind)+">", class_b="primary", text = "excresise "+str(ind))
+        html_data += tm.render(url="/exc/<"+str(ind)+">", class_b="primary", text = "exercise "+str(ind))
         
     #add disabled button for next excersise
     if max_allowed_exc < NUM_ECXS:
         tm = Template(BUTTON_LINK_TEMP)
-        html_data += tm.render(url=request.url, class_b="disabled ", text = "excresise "+str(max_allowed_exc+1))
+        html_data += tm.render(url=request.url, class_b="disabled ", text = "exercise "+str(max_allowed_exc+1))
     return html_data
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -159,12 +159,13 @@ def exc(id):
         upload_file_ret_val = upload_file(request, "sol_"+session['username']+".txt")
         if upload_file_ret_val != None:
             return message_page_gen(upload_file_ret_val, request.url, "retry_submission", "red")
-        if test_func():#if passed test
+        test_error_msg = test_func()
+        if test_error_msg == None:#if passed test
             global USER_MAX_ALLOWED_EXC
             USER_MAX_ALLOWED_EXC[session['username']] = max(USER_MAX_ALLOWED_EXC[session['username']], id + 1)
             return message_page_gen("submission correct", url_for("main_menu"), "main_menu", "LimeGreen")
         else:
-            return message_page_gen("submission incorrect", request.url, "retry_submission ", "red")
+            return message_page_gen("submission incorrect" + test_error_msg, request.url, "retry_submission ", "red")
             
     if USER_MAX_ALLOWED_EXC[session['username']] >= id:
         CURRENT_EXC[session['username']] = id
