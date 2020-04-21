@@ -1,7 +1,5 @@
-import sys
-sys.path.append("./exc_checking")
+from exc_checking.gerber_file import *
 
-from gerber_file import *
 from flask import session
         
 #########exc1 specific code######################### 

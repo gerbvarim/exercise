@@ -1,7 +1,4 @@
-import sys
-sys.path.append("./exc_checking")
-
-from gerber_line import GerberLine
+from exc_checking.gerber_line import GerberLine
 
 
 def remove_list_duplicate(list_in):

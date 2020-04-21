@@ -4,9 +4,7 @@ from flask import Flask, flash, request, redirect, url_for, send_file, session
 from data_base_wrapper import *
 from jinja2 import Template
 import threading
-import sys
-sys.path.append("./exc_checking")
-from exc_check import *
+from exc_checking.exc_check import *
 
 UPLOAD_FOLDER = 'upload_folder/'
 NUM_ECXS = 4
