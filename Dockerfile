@@ -5,7 +5,9 @@ RUN pip install Flask
 
 RUN groupadd -r gerber_web && useradd --no-log-init -r -g gerber_web gerber_web
 
-WORKDIR /app
+# This is a hack - because the openshift docker
+# won't let us write to other locations, which are hardcoded...
+WORKDIR /tmp
 RUN chown gerber_web:gerber_web .
 
 USER gerber_web
