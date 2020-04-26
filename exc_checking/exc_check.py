@@ -107,15 +107,28 @@ def passed_exc3():
         return None
     except Exception:
         return ""
-           
+        
 #########exc4 specific code######################### 
-def get_canonic_sol4_rep(sol4_lines):
+def passed_exc4():
+    try:
+        correct_res = open("exc_checking/sol4.txt","r").read().split("\n")
+        user_res = open("upload_folder/sol_" + session['username'] + ".txt", "r").read().split("\n")
+        if len(correct_res) != len(user_res):
+            return ": incorrect amount of pins"
+        if correct_res != user_res:
+            return ": incorrect pin locations"
+        return None
+    except Exception:
+        return ""
+           
+#########exc5 specific code######################### 
+def get_canonic_sol5_rep(sol5_lines):
     """
     get a solution for exc4 and return a canonic single form of this solution.
     the idea is that the test shouldn't take into consideration the nets order or the order of points inside the net.
     """
     result = []
-    for line in sol4_lines:
+    for line in sol5_lines:
         result.append([])
         line_nums = line.split()
         for ind in range(0, len(line_nums), 2):
@@ -124,15 +137,15 @@ def get_canonic_sol4_rep(sol4_lines):
     result.sort()#sort the nets
     return result
       
-def passed_exc4():
+def passed_exc5():
     try:
-        correct_res = open("exc_checking/sol4.txt","r").read().split("\n")
+        correct_res = open("exc_checking/sol5.txt","r").read().split("\n")
         user_res = open("upload_folder/sol_" + session['username'] + ".txt", "r").read().split("\n")
         if correct_res[0].split()[0] != user_res[0].split()[0]:#check num nets is the correct one in a space-immune check
             return ": incorrect amount of nets"
         correct_res = correct_res[1::]#remove first line. it is already tested.
         user_res = user_res[1::]
-        if get_canonic_sol4_rep(correct_res) == get_canonic_sol4_rep(user_res):
+        if get_canonic_sol5_rep(correct_res) == get_canonic_sol5_rep(user_res):
             return None
         else:
             return ": incorrect nets"
