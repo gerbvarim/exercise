@@ -49,36 +49,36 @@ def passed_exc1():
         circle_r = (0.3 * 10**5) / 2 #radius of circles
         for ap in resulted_aps:
             if not( ap.type == 11 or ap.type == 12):
-                return ""
+                return " : illegal shape type"
             if ap.type == 11:#ap is one of the 2 circles
                 if not( len(ap.ap_connected_to) == 2):
-                    return ""
+                    return " : wrong amount fo connected circles"
                 for ap_connected in ap.ap_connected_to:
                     if not( ap_connected.type == 11): #check circles are only connected to circles
-                        return ""
+                        return " : illegal connection of circle to non-circle"
             if ap.type == 12:#ap is one of the 3 squares
                 if not( len(ap.ap_connected_to) == 3):
-                    return ""
+                    return " : wrong amount of connected squares"
                 for ap_connected in ap.ap_connected_to:
                     if not( ap_connected.type == 12): #check squares are only connected to squares
-                        return ""
+                        return " : illegal connection of square to non-circle"
             #check shape overlapping
             for ap2 in resulted_aps:
                 if ap2 != ap:
                     if ap.type == 11: #if ap circle
                         if ap2.type == 11:
                             if does_circles_overlap(ap.location, ap2.location, circle_r, circle_r):
-                                return ""
+                                return " : shapes overllap"
                         else:
                             if does_square_circle_overlap(ap2.location, ap.location, square_l, circle_r):
-                                return ""               
+                                return " : shapes overllap"               
                     else: #if ap square
                         if ap2.type == 11:
                             if does_square_circle_overlap(ap.location, ap2.location, square_l, circle_r):
-                                return ""
+                                return " : shapes overllap"
                         else:
                             if does_squares_overlap(ap2.location, ap.location, square_l, square_l):
-                                return ""               
+                                return " : shapes overllap"               
         return None   
     except Exception:
         return ""

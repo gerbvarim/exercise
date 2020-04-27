@@ -129,7 +129,7 @@ def download_instruction(id):
     """
     downlaod the relevant instruction file
     """
-    return send_file("tar_doc/exc" + id[1:-1]+ ".docx", as_attachment=True)
+    return send_file("tar_doc/exc" + id[1:-1]+ ".pdf", as_attachment=True)
  
 exc_file_extention = [".txt", ".zip", None, ".txt", None] 
 @app.route("/download_files/<id>")
