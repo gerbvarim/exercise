@@ -7,7 +7,7 @@ import threading
 from exc_checking.exc_check import *
 
 UPLOAD_FOLDER = 'upload_folder/'
-NUM_ECXS = 4
+NUM_ECXS = 5
 USER_MAX_ALLOWED_EXC = {}
 USER_PWDS = {}
 CURRENT_EXC = {}
@@ -129,9 +129,9 @@ def download_instruction(id):
     """
     downlaod the relevant instruction file
     """
-    return send_file("tar_doc/exc" + id[1:-1]+ ".docx", as_attachment=True)
+    return send_file("tar_doc/exc" + id[1:-1]+ ".pdf", as_attachment=True)
  
-exc_file_extention = [".txt", ".zip", None, None] 
+exc_file_extention = [".txt", ".zip", None, ".txt", None] 
 @app.route("/download_files/<id>")
 def download_files(id):
     """
@@ -139,8 +139,8 @@ def download_files(id):
     """
     return send_file("user_files/exc" + id[1:-1] + exc_file_extention[CURRENT_EXC[session['username']] - 1], as_attachment=True)
 
-test_func_list = [passed_exc1, passed_exc2, passed_exc3, passed_exc4]
-has_files_to_download_list = [True, True, False, False]    
+test_func_list = [passed_exc1, passed_exc2, passed_exc3, passed_exc4, passed_exc5]
+has_files_to_download_list = [True, True, False, True, False]    
     
 
 @app.route('/exc/<id>', methods=['GET', 'POST'])    
